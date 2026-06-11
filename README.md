@@ -14,7 +14,16 @@ poetry run python -m unittest discover -s tests -v     # tests
 ## Usage
 
 
-Returns `{ "schedule": [{hour, chargingPower}, ...], "metadata": {feasible, final_soc_pct, expected_energy_delivered_kwh, estimated_cost_eur, warnings} }`.
+Returns `{ "schedule": [
+                        {
+                            "hour": "2026-06-10T10:00:00Z",
+                            "chargingPower": 11.0
+                        },
+                        {
+                            "hour": "2026-06-10T11:00:00Z",
+                            "chargingPower": 0.0
+                        }
+                    ]}`.
 
 ## Algorithm
 
