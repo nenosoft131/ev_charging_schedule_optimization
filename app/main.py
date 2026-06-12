@@ -72,6 +72,26 @@ def run(raw_input: dict[str, Any]) -> dict[str, Any]:
     except ValidationError as exc:
         logger.error("Feasibility check failed: %s", exc)
         return {"error": exc.errors()}
+    # ------------------------------------------------------------------
+    # 3. Plan charging
+    # ------------------------------------------------------------------
+    try:
+        planner_service = PlannerService()
+
+        result = planner_service.plan_charging(
+            forecast=validated_request.forecast,
+            current_soc_pct=validated_request.vehicle.current_soc_pct,
+            target_soc_pct=validated_request.vehicle.target_soc_pct,
+            capacity_kwh=validated_request.vehicle.capacity,
+            max_power_kw = validated_request.vehicle.max_power_kw,
+            use_cash_cost=True,
+        )
+
+        return result
+
+    except ValidationError as exc:
+        logger.error("Planning failed: %s", exc)
+        return {"error": exc.errors()}
 
 
 def main() -> None:
