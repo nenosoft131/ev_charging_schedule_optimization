@@ -1,29 +1,57 @@
+from pydantic import BaseModel, Field
+from typing import List, Optional
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
 
+# ---------------------------------------------------------------------
+# Core domain models
+# ---------------------------------------------------------------------
 
 class Vehicle(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    """Represents EV charging constraints and battery state."""
 
-    capacity: float = Field(gt=0, description="Battery capacity in kWh")
-    current_soc: float = Field(ge=0, le=100, description="Current SoC %")
-    target_soc: float = Field(ge=0, le=100, description="Target SoC %")
-    max_charging_power: float = Field(gt=0, description="Max charge power in kW")
+    capacity: float = Field(..., gt=0, description="Battery capacity in kWh")
+    current_soc_pct: float = Field(..., ge=0, le=100, description="Current state of charge (%)")
+    target_soc_pct: float = Field(..., ge=0, le=100, description="Target state of charge (%)")
+    max_power_kw: float = Field(..., gt=0, description="Maximum charging power (kW)")
 
 
-class ForecastHour(BaseModel):
-    model_config = ConfigDict(frozen=True)
-
-    timestamp: datetime = Field(description="Start of the hour (assumed UTC)")
-    price: float = Field(description="€/kWh, may be negative")
-    solar: float = Field(ge=0, description="Solar availability in kW")
-    conf: float = Field(ge=0, le=1, description="Plug-in confidence, 0..1")
+class Hour(BaseModel):
+    """Single forecast time slot."""
+    hour: datetime
+    price: float  # Can be negative (market incentives)
+    solar: float = Field(..., ge=0, description="Available solar power (kW)")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Forecast confidence [0–1]")
 
 
 class SchedulerParams(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    """Optional tuning parameters for scheduling behavior."""
 
-    confidence_floor: float = Field(default=0.95, gt=0, le=1)
-    min_useful_conf: float = Field(default=0.05, ge=0, le=1)
-    precision: float = Field(default=0.01, gt=0)
+    confidence_floor: float = Field(
+        default=0.95,
+        ge=0.5,
+        le=1.0,
+        description="Minimum confidence threshold for reliable forecast usage",
+    )
+
+
+class ScheduleRequest(BaseModel):
+    """Input payload for the charging scheduler."""
+
+    vehicle: Vehicle
+    forecast: List[Hour]
+    params: SchedulerParams = Field(default_factory=SchedulerParams)
+
+
+# ---------------------------------------------------------------------
+# Feasibility analysis
+# ---------------------------------------------------------------------
+
+class FeasibilityReport(BaseModel):
+    """Checks whether requested charging is physically and practically feasible."""
+
+    is_feasible: bool
+    energy_required_kwh: float
+    target_with_buffer_kwh: float
+    max_possible_expected_kwh: float
+    warning: Optional[str] = None
