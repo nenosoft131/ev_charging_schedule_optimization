@@ -34,6 +34,7 @@ raw_input = {
     "params": {"confidence_floor": 0.95}
 }
 
+
 def run(raw_input: dict[str, Any]) -> dict[str, Any]:
     """Execute validation → feasibility → planning pipeline."""
 
@@ -46,7 +47,7 @@ def run(raw_input: dict[str, Any]) -> dict[str, Any]:
 
         if is_shortcut:
             logger.info("Shortcut triggered: %s", message)
-            return validated_request
+            return {"Alert": message}
 
     except ValidationError as exc:
         logger.error("Validation failed: %s", exc)
@@ -84,7 +85,8 @@ def run(raw_input: dict[str, Any]) -> dict[str, Any]:
             target_soc_pct=validated_request.vehicle.target_soc_pct,
             capacity_kwh=validated_request.vehicle.capacity,
             max_power_kw = validated_request.vehicle.max_power_kw,
-            use_cash_cost=True,
+            confidence_floor = validated_request.params.confidence_floor,
+            solar_is_free=True,
         )
 
         return result

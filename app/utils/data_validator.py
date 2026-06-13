@@ -1,4 +1,4 @@
-from model.models import ScheduleRequest
+from app.model.models import ScheduleRequest
 from pydantic import ValidationError
 
 class DataValidator:

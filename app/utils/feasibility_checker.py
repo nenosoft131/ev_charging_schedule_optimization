@@ -1,4 +1,4 @@
-from model.models import ScheduleRequest, FeasibilityReport
+from app.model.models import ScheduleRequest, FeasibilityReport
 
 
 class FeasibilityChecker:
