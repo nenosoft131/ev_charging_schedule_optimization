@@ -1,7 +1,7 @@
 from app.model.models import PlanResult, Hour
 from typing import List,Tuple
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("ev_scheduler")
 
 class PlannerService():
     """
@@ -37,6 +37,11 @@ class PlannerService():
         )
         tiers = self.build_energy_tiers(forecast, max_power_kw, feed_in, solar_is_free)
         energy_to_target = max(0.0, (target_soc_pct - current_soc_pct) / 100 * capacity_kwh / confidence_floor)
+
+        # energy_to_target = min(
+        #     max(0.0, (target_soc_pct - current_soc_pct) / 100 * capacity_kwh / confidence_floor),  // If dont want to plan for more than capacity
+        #     energy_to_full,
+        # )
         energy_to_full = max(0.0, (100.0 - current_soc_pct) / 100 * capacity_kwh)
         allocations = [0.0] * len(forecast)
         taken = 0.0
