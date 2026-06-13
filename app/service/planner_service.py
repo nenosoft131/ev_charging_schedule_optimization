@@ -17,6 +17,7 @@ class PlannerService():
         capacity_kwh: float,
         max_power_kw: float,
         confidence_floor: float,
+        confidence_exponent: float = 0.5,
         feed_in: float = 0.08,
         solar_is_free: bool = True,
         value_of_full: float = 0.0,
@@ -35,7 +36,9 @@ class PlannerService():
             target_soc_pct,
             len(forecast),
         )
-        tiers = self.build_energy_tiers(forecast, max_power_kw, feed_in, solar_is_free)
+        tiers = self.build_energy_tiers(
+            forecast, max_power_kw, feed_in, solar_is_free, confidence_exponent
+        )
         energy_to_target = max(0.0, (target_soc_pct - current_soc_pct) / 100 * capacity_kwh / confidence_floor)
 
         # energy_to_target = min(
@@ -110,30 +113,38 @@ class PlannerService():
         max_power_kw: float,
         feed_in: float,
         solar_is_free: bool,
+        confidence_exponent: float = 0.5,
     ) -> List[Tuple[float, float, float, int]]:
         """
         Returns sorted energy opportunities:
         (adjusted_cost, raw_cost, energy_kwh, hour_index)
-        """  
 
-        tiers = []   
-        EPSILON = 1e-6          
+        The confidence penalty uses conf ** confidence_exponent as the
+        divisor: e=1 is the original behavior, e<1 softens the penalty so
+        price differences dominate more, e=0 ignores confidence in ranking.
+        """
+
+        tiers = []
+        EPSILON = 1e-6
 
         for i, h in enumerate(forecast):
 
+            if h.confidence <= EPSILON:
+                continue  # car not plugged in this hour — skip both tiers
             cap = max_power_kw
             solar_kwh = min(max(h.solar, 0.0), cap)
             conf = max(h.confidence, EPSILON)
-            
+            weight = conf ** confidence_exponent
+
             # Solar Tier
             if solar_kwh > 0:
                 # If solar is free than (0.0). Otherwise, use feed_in.
                 solar_raw_cost = 0.0 if solar_is_free else feed_in
-                tiers.append((solar_raw_cost / conf, solar_raw_cost, solar_kwh, i))
-                
+                tiers.append((solar_raw_cost / weight, solar_raw_cost, solar_kwh, i))
+
             # Grid Tier
             if cap - solar_kwh > 0:
-                tiers.append((h.price / conf, h.price, cap - solar_kwh, i))
-                
+                tiers.append((h.price / weight, h.price, cap - solar_kwh, i))
+
         return sorted(tiers, key=lambda tier: tier[0])
 

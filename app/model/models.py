@@ -33,6 +33,15 @@ class SchedulerParams(BaseModel):
         le=1.0,
         description="Minimum confidence threshold for reliable forecast usage",
     )
+    confidence_exponent: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description=(
+            "Exponent applied to per-hour confidence when ranking tiers. "
+            "1.0 = full penalty (raw_cost / conf); 0.5 = softened "
+        ),
+    )
 
 
 class ScheduleRequest(BaseModel):

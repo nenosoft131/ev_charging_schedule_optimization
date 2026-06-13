@@ -56,6 +56,7 @@ def run(raw_input: dict[str, Any]) -> Any:
             capacity_kwh=validated.vehicle.capacity,
             max_power_kw=validated.vehicle.max_power_kw,
             confidence_floor=validated.params.confidence_floor,
+            confidence_exponent=validated.params.confidence_exponent,
             solar_is_free=True,
         )
     except ValidationError as exc:
