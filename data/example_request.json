@@ -1,0 +1,29 @@
+{
+  "vehicle": {
+    "capacity": 100,
+    "current_soc_pct": 30,
+    "target_soc_pct": 72,
+    "max_power_kw": 9.0
+  },
+  "forecast": [
+    {"hour": "6:00",  "price": 0.32, "solar": 0.0, "confidence": 1.00},
+    {"hour": "7:00",  "price": 0.28, "solar": 0.0, "confidence": 1.00},
+    {"hour": "8:00",  "price": 0.25, "solar": 0.2, "confidence": 0.95},
+    {"hour": "9:00",  "price": 0.22, "solar": 0.6, "confidence": 0.95},
+    {"hour": "10:00", "price": 0.18, "solar": 1.5, "confidence": 0.90},
+    {"hour": "11:00", "price": 0.16, "solar": 2.8, "confidence": 0.85},
+    {"hour": "12:00", "price": 0.17, "solar": 4.0, "confidence": 0.70},
+    {"hour": "13:00", "price": 0.21, "solar": 4.5, "confidence": 0.60},
+    {"hour": "14:00", "price": 0.27, "solar": 3.2, "confidence": 0.70},
+    {"hour": "15:00", "price": 0.35, "solar": 1.2, "confidence": 0.85},
+    {"hour": "16:00", "price": 0.42, "solar": 0.4, "confidence": 0.95},
+    {"hour": "17:00", "price": 0.48, "solar": 0.1, "confidence": 0.95},
+    {"hour": "18:00", "price": 0.45, "solar": 0.0, "confidence": 1.00},
+    {"hour": "19:00", "price": 0.38, "solar": 0.0, "confidence": 1.00},
+    {"hour": "20:00", "price": 0.33, "solar": 0.0, "confidence": 1.00},
+    {"hour": "21:00", "price": 0.29, "solar": 0.0, "confidence": 1.00}
+  ],
+  "params": {
+    "confidence_floor": 0.95
+  }
+}
