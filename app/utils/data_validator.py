@@ -1,4 +1,5 @@
-from app.model.models import ScheduleRequest
+from model.models import ScheduleRequest
+from pydantic import ValidationError
 
 class DataValidator:
     """
@@ -17,16 +18,15 @@ class DataValidator:
         try:
             # Pydantic automatically checks: real numbers, ranges (0<=soc<=100, capacity>0, etc.)
             request = ScheduleRequest(**raw_data)
-        except ValueError as e:
-            raise ValueError({"Validation Failed": str(e)})
-            # return False, {"error": str(e)}, "Validation Failed"
+        except ValidationError:
+            raise
 
         vehicle = request.vehicle
         forecast = request.forecast
 
         # Shortcut Case 1: Empty horizon
         if len(forecast) == 0:
-            return True, {"schedule": [], "metadata": {"warnings": ["Empty horizon provided."]}}, "Success (Empty)"
+            return True, {"schedule": [], "metadata": {"warnings": ["Empty horizon provided."]}}, "Empty forecast horizon no charging window available."
 
         # Shortcut Case 2: Already at or above target
         if vehicle.current_soc_pct >= vehicle.target_soc_pct:
@@ -37,7 +37,7 @@ class DataValidator:
             return True, {
                 "schedule": zero_schedule, 
                 "metadata": {"final_soc_pct": vehicle.current_soc_pct, "warnings": ["Already at or above target SoC."]}
-            }, "Success (Already Full)"
+            }, "Target state of charge already satisfied."
 
         # If no shortcuts, return the validated object for Phase 2
         return False, request, "Validation Passed"

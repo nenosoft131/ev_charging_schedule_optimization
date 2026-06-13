@@ -1,4 +1,4 @@
-from app.model.models import ScheduleRequest, FeasibilityReport
+from model.models import ScheduleRequest, FeasibilityReport
 
 
 class FeasibilityChecker:
@@ -52,9 +52,11 @@ class FeasibilityChecker:
         # ------------------------------------------------------------------
         # 4. Forecast-based maximum deliverable energy
         # ------------------------------------------------------------------
-        max_possible_kwh = sum(
-            vehicle.max_power_kw * hour.confidence for hour in forecast
-        )
+        # max_possible_kwh = sum(
+        #     vehicle.max_power_kw * hour.confidence for hour in forecast
+        # )
+        max_possible_kwh =  vehicle.max_power_kw * len(forecast)
+    
 
         # ------------------------------------------------------------------
         # 5. Feasibility decision
