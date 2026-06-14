@@ -3,7 +3,7 @@
 import unittest
 from datetime import datetime, timedelta
 
-from app.model.models import Hour
+from app.model.models import Hour, SchedulerParams, Vehicle
 from app.service.planner_service import PlannerService
 
 
@@ -21,11 +21,13 @@ def forecast(rows):
 def plan(fc, *, current=40, target=70, capacity=50, p_max=11, confidence_floor=0.95):
     return PlannerService().plan_charging(
         forecast=fc,
-        current_soc_pct=current,
-        target_soc_pct=target,
-        capacity_kwh=capacity,
-        max_power_kw=p_max,
-        confidence_floor=confidence_floor,
+        vehicle=Vehicle(
+            capacity=capacity,
+            current_soc_pct=current,
+            target_soc_pct=target,
+            max_power_kw=p_max,
+        ),
+        params=SchedulerParams(confidence_floor=confidence_floor),
     )
 
 
@@ -84,11 +86,13 @@ class PlannerServiceTests(unittest.TestCase):
         # raw cost (0.10) is below value_of_full (0.30).
         schedule = PlannerService().plan_charging(
             forecast=forecast([(0.10, 0.0, 1.0)] * 5),
-            current_soc_pct=40,
-            target_soc_pct=42,    # small required: ~1.05 kWh
-            capacity_kwh=50,
-            max_power_kw=11,
-            confidence_floor=0.95,
+            vehicle=Vehicle(
+                capacity=50,
+                current_soc_pct=40,
+                target_soc_pct=42,   # small required: ~1.05 kWh
+                max_power_kw=11,
+            ),
+            params=SchedulerParams(confidence_floor=0.95),
             value_of_full=0.30,
         )
         total = sum(row["charging_power"] for row in schedule)
@@ -99,11 +103,13 @@ class PlannerServiceTests(unittest.TestCase):
         # Battery has only 2 kWh of headroom; the planner stops once full.
         schedule = PlannerService().plan_charging(
             forecast=forecast([(0.10, 0.0, 1.0)] * 4),
-            current_soc_pct=80,
-            target_soc_pct=100,
-            capacity_kwh=10,
-            max_power_kw=11,
-            confidence_floor=0.95,
+            vehicle=Vehicle(
+                capacity=10,
+                current_soc_pct=80,
+                target_soc_pct=100,
+                max_power_kw=11,
+            ),
+            params=SchedulerParams(confidence_floor=0.95),
         )
         total = sum(row["charging_power"] for row in schedule)
         # Allocator may overshoot by one tier's take but should be close to 2 kWh.
