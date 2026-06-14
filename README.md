@@ -6,7 +6,7 @@ confidence), produces an hour-by-hour charging plan.
 ## Requirements
 
 - Python 3.11+
-- [Poetry](https://python-poetry.org/docs/#installation)
+- [Poetry](https://python-poetry.org/docs/#installation). (pip install poetry)
 
 ## Setup
 
@@ -29,12 +29,6 @@ poetry run app -i data/example_request.json -o result.json -v
 - `-v` print info logs to stderr
 
 The plan is written to `result.json`.
-
-## Run the tests
-
-```bash
-poetry run pytest
-```
 
 ## Input
 
@@ -71,6 +65,12 @@ One entry per forecast hour:
 
 On invalid input: `{"error": [...]}` with exit code `1`.
 
+
+## Run the tests
+
+```bash
+poetry run pytest
+```
 
 ## Run with Docker (Web UI)
 
@@ -133,6 +133,7 @@ app/
   utils/data_validator.py       # Input validation + shortcuts
   utils/feasibility_checker.py  # Feasibility report
 data/example_request.json       # Sample input
+web/streamlit_app.py            # Web UI
 tests/                          # Unit + integration tests
 ```
 
@@ -163,3 +164,6 @@ def schedule(payload: dict):
 Run it with `uvicorn main:app --reload` and POST the same JSON you'd
 pass to the CLI.
 
+---
+
+Built by **Muhammad** · See [`docs/EV_Charging_Schedule_Optimization.pdf`](docs/EV_Charging_Schedule_Optimization.pdf) for the technical write-up.
