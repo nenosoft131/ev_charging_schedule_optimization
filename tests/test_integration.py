@@ -27,7 +27,7 @@ class IntegrationTests(unittest.TestCase):
         # Need (72 - 30)/100 * 100 / 0.95 ≈ 44.2 kWh delivered across the horizon.
         result = run(SAMPLE_INPUT)
 
-        total = sum(row["chargingPower"] for row in result)
+        total = sum(row["charging_power"] for row in result)
         self.assertGreaterEqual(total, 44.2 - 0.1)
 
     def test_empty_forecast_short_circuits(self):
