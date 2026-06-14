@@ -71,6 +71,45 @@ One entry per forecast hour:
 
 On invalid input: `{"error": [...]}` with exit code `1`.
 
+
+## Run with Docker (Web UI)
+
+Build and start the Streamlit web app:
+
+```bash
+docker build -t ev-scheduler .
+docker run --rm -p 8501:8501 ev-scheduler
+```
+
+Open **http://localhost:8501** in your browser.
+
+In the sidebar, set the vehicle (capacity, current/target SoC, max power)
+and the params (`confidence_floor`, `confidence_exponent`). For the
+forecast, choose one of:
+
+- **Paste JSON** — a forecast array (same shape as `data/example_request.json`).
+- **Upload CSV** — a CSV with exactly these columns: `hour, price, solar, confidence`.
+
+Example CSV:
+
+```csv
+hour,price,solar,confidence
+6:00,0.32,0.0,1.00
+7:00,0.28,0.0,1.00
+8:00,0.25,0.2,0.95
+```
+
+Click **Plan Schedule** to see the per-hour plan, total cost, cost per kWh,
+and a feasibility check.
+
+To run the web UI locally without Docker:
+
+```bash
+poetry run pip install streamlit pandas
+poetry run streamlit run web/streamlit_app.py
+```
+
+
 ## How it works
 
 1. **Validate** — Pydantic enforces field ranges on the input request.
