@@ -47,13 +47,8 @@ def run(raw_input: dict[str, Any]) -> Any:
     # 3. Plan charging 
     return PlannerService().plan_charging(
         forecast=validated.forecast,
-        current_soc_pct=validated.vehicle.current_soc_pct,
-        target_soc_pct=validated.vehicle.target_soc_pct,
-        capacity_kwh=validated.vehicle.capacity,
-        max_power_kw=validated.vehicle.max_power_kw,
-        confidence_floor=validated.params.confidence_floor,
-        confidence_exponent=validated.params.confidence_exponent,
-        solar_is_free=True,
+        vehicle = validated.vehicle,
+        params = validated.params
     )
 
 # ---------------------------------------------------------------------

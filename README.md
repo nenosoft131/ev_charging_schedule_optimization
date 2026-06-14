@@ -58,8 +58,8 @@ One entry per forecast hour:
 
 ```json
 [
-  {"hour": "2026-06-13T08:00:00Z", "chargingPower": 0.2},
-  {"hour": "2026-06-13T09:00:00Z", "chargingPower": 9.0}
+  {"hour": "2026-06-13T08:00:00Z", "charging_power": 0.2},
+  {"hour": "2026-06-13T09:00:00Z", "charging_power": 9.0}
 ]
 ```
 

@@ -1,4 +1,4 @@
-from app.model.models import Hour
+from app.model.models import Hour, Vehicle, SchedulerParams
 from typing import List, Tuple
 import logging
 logger = logging.getLogger("ev_scheduler")
@@ -12,12 +12,8 @@ class PlannerService:
     def plan_charging(
         self,
         forecast: List[Hour],
-        current_soc_pct: float,
-        target_soc_pct: float,
-        capacity_kwh: float,
-        max_power_kw: float,
-        confidence_floor: float,
-        confidence_exponent: float = 0.5,
+        vehicle : Vehicle,
+        params : SchedulerParams,
         feed_in: float = 0.08,
         solar_is_free: bool = True,
         value_of_full: float = 0.0,
@@ -29,23 +25,28 @@ class PlannerService:
         # ------------------------------------------------------------
         # Build energy offers (solar + grid)
         # ------------------------------------------------------------
+        # current_soc_pct = vehicle.current_soc_pct
+        # target_soc_pct = vehicle.target_soc_pct
+        # max_power_kw = vehicle.max_power_kw
+        # capacity_kwh = vehicle.capacity
+        
 
         logger.info(
             "Starting planning | SOC: %.1f → %.1f | forecast_hours=%d",
-            current_soc_pct,
-            target_soc_pct,
+            vehicle.current_soc_pct,
+            vehicle.target_soc_pct,
             len(forecast),
         )
         tiers = self.build_energy_tiers(
-            forecast, max_power_kw, feed_in, solar_is_free, confidence_exponent
+            forecast, vehicle.max_power_kw, feed_in, solar_is_free, params.confidence_exponent
         )
-        energy_to_target = max(0.0, (target_soc_pct - current_soc_pct) / 100 * capacity_kwh / confidence_floor)
+        energy_to_target = max(0.0, (vehicle.target_soc_pct - vehicle.current_soc_pct) / 100 * vehicle.capacity / params.confidence_floor)
 
         # energy_to_target = min(
         #     max(0.0, (target_soc_pct - current_soc_pct) / 100 * capacity_kwh / confidence_floor),  # If dont want to plan for more than capacity
         #     energy_to_full,
         # )
-        energy_to_full = max(0.0, (100.0 - current_soc_pct) / 100 * capacity_kwh)
+        energy_to_full = max(0.0, (100.0 - vehicle.current_soc_pct) / 100 * vehicle.capacity)
         allocations = [0.0] * len(forecast)
         taken = 0.0
 
