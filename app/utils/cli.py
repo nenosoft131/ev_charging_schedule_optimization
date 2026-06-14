@@ -87,8 +87,8 @@ def expand_hours(raw: dict[str, Any]) -> dict[str, Any]:
         if isinstance(h, str) and ":" in h and "T" not in h:
             hh, mm = h.split(":")
             entry["hour"] = datetime.combine(
-                today, time(int(hh), int(mm))
-            ).strftime("%Y-%m-%dT%H:%M:%SZ")
+                today, time(int(hh), int(mm)), 
+                tzinfo=timezone.utc).isoformat().replace("+00:00", "Z")
     return raw
 
 

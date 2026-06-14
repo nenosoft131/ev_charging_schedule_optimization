@@ -1,9 +1,9 @@
-from app.model.models import PlanResult, Hour
-from typing import List,Tuple
+from app.model.models import Hour
+from typing import List, Tuple
 import logging
 logger = logging.getLogger("ev_scheduler")
 
-class PlannerService():
+class PlannerService:
     """
     EV charging planner optimization.
     """
@@ -42,7 +42,7 @@ class PlannerService():
         energy_to_target = max(0.0, (target_soc_pct - current_soc_pct) / 100 * capacity_kwh / confidence_floor)
 
         # energy_to_target = min(
-        #     max(0.0, (target_soc_pct - current_soc_pct) / 100 * capacity_kwh / confidence_floor),  // If dont want to plan for more than capacity
+        #     max(0.0, (target_soc_pct - current_soc_pct) / 100 * capacity_kwh / confidence_floor),  # If dont want to plan for more than capacity
         #     energy_to_full,
         # )
         energy_to_full = max(0.0, (100.0 - current_soc_pct) / 100 * capacity_kwh)
@@ -55,14 +55,14 @@ class PlannerService():
 
         for _, raw_cost, kwh, i in tiers:
             if taken < energy_to_target:
-                take = min(kwh, energy_to_target - taken, energy_to_full)
+                take = min(kwh, energy_to_target - taken, energy_to_full - taken)
             elif raw_cost < value_of_full:
                 # take = min(kwh)
                 take = min(kwh, energy_to_full - taken)
             else:
                 continue
                 
-            if take <= 0:
+            if take <= 0:  # pragma: no cover 
                 continue
             allocations[i] += take
             taken += take
@@ -84,7 +84,7 @@ class PlannerService():
 
             schedule.append({
                 "hour": h.hour.isoformat().replace("+00:00", "Z"),
-                "chargingPower": round(p, 2)
+                "charging_power": round(p, 2)
             })
             
             total_kwh += energy

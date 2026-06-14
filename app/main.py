@@ -22,46 +22,39 @@ def run(raw_input: dict[str, Any]) -> Any:
     a list-shaped schedule, a shortcut alert dict, or an error dict.
     """
 
-    # 1. Validate input
+    # 1. Validate input — the only stage that consumes untrusted data.
     try:
         needs_scheduling, validated, message = DataValidator.validate_data(raw_input)
-        if not needs_scheduling:
-            logger.info("Final response without scheduling: %s", message)
-            return {"Alert": message}
     except ValidationError as exc:
         logger.error("Validation failed: %s", exc)
         return {"error": exc.errors()}
 
-    # 2. Feasibility check
-    try:
-        report = FeasibilityChecker.check(validated)
-        logger.info(
-            "Feasibility | required=%.2f kWh | buffered=%.2f kWh | max=%.2f kWh",
-            report.energy_required_kwh,
-            report.target_with_buffer_kwh,
-            report.max_possible_expected_kwh,
-        )
-        if report.warning:
-            logger.warning("Feasibility warning: %s", report.warning)
-    except ValidationError as exc:
-        logger.error("Feasibility check failed: %s", exc)
-        return {"error": exc.errors()}
+    if not needs_scheduling:
+        logger.info("Final response without scheduling: %s", message)
+        return {"Alert": message}
 
-    # 3. Plan charging
-    try:
-        return PlannerService().plan_charging(
-            forecast=validated.forecast,
-            current_soc_pct=validated.vehicle.current_soc_pct,
-            target_soc_pct=validated.vehicle.target_soc_pct,
-            capacity_kwh=validated.vehicle.capacity,
-            max_power_kw=validated.vehicle.max_power_kw,
-            confidence_floor=validated.params.confidence_floor,
-            confidence_exponent=validated.params.confidence_exponent,
-            solar_is_free=True,
-        )
-    except ValidationError as exc:
-        logger.error("Planning failed: %s", exc)
-        return {"error": exc.errors()}
+    # 2. Feasibility check — operates on a typed ScheduleRequest; no Pydantic errors possible.
+    report = FeasibilityChecker.check(validated)
+    logger.info(
+        "Feasibility | required=%.2f kWh | buffered=%.2f kWh | max=%.2f kWh",
+        report.energy_required_kwh,
+        report.target_with_buffer_kwh,
+        report.max_possible_expected_kwh,
+    )
+    if report.warning:
+        logger.warning("Feasibility warning: %s", report.warning)
+
+    # 3. Plan charging 
+    return PlannerService().plan_charging(
+        forecast=validated.forecast,
+        current_soc_pct=validated.vehicle.current_soc_pct,
+        target_soc_pct=validated.vehicle.target_soc_pct,
+        capacity_kwh=validated.vehicle.capacity,
+        max_power_kw=validated.vehicle.max_power_kw,
+        confidence_floor=validated.params.confidence_floor,
+        confidence_exponent=validated.params.confidence_exponent,
+        solar_is_free=True,
+    )
 
 # ---------------------------------------------------------------------
 # Entry point
@@ -89,5 +82,5 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     sys.exit(main())
