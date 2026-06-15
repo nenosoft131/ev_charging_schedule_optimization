@@ -51,38 +51,6 @@ class ScheduleRequest(BaseModel):
     forecast: List[Hour]
     params: SchedulerParams = Field(default_factory=SchedulerParams)
 
-class EnergyTier(BaseModel):
-    adjusted_cost: float
-    raw_cost: float
-    energy_kwh: float
-    hour_index: int
-
-# ---------------------------------------------------------------------
-# Output models
-# ---------------------------------------------------------------------
-
-class HourPlan(BaseModel):
-    """Result for a single hour of charging."""
-
-    time: datetime
-    charging_power_kw: float
-    soc_percent: float
-
-    solar_kwh_used: float
-    grid_kwh_used: float
-    cost_eur: float
-
-
-class PlanResult(BaseModel):
-    """Full charging plan output."""
-
-    hours: List[HourPlan] = Field(default_factory=list)
-    total_kwh: float = 0.0
-    total_cost_eur: float = 0.0
-    avg_cost_per_kwh: float = 0.0
-    clearing_price: float = 0.0
-
-
 # ---------------------------------------------------------------------
 # Feasibility analysis
 # ---------------------------------------------------------------------

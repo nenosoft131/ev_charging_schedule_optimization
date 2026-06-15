@@ -25,12 +25,7 @@ class PlannerService:
         # ------------------------------------------------------------
         # Build energy offers (solar + grid)
         # ------------------------------------------------------------
-        # current_soc_pct = vehicle.current_soc_pct
-        # target_soc_pct = vehicle.target_soc_pct
-        # max_power_kw = vehicle.max_power_kw
-        # capacity_kwh = vehicle.capacity
         
-
         logger.info(
             "Starting planning | SOC: %.1f → %.1f | forecast_hours=%d",
             vehicle.current_soc_pct,
@@ -78,14 +73,13 @@ class PlannerService:
         total_cost = 0.0
         
         for h, energy in zip(forecast, allocations):
-            p = energy
             solar_used = min(h.solar, energy)
             grid_used = energy - solar_used
             cost = (solar_used * (0.0 if solar_is_free else feed_in)) + (grid_used * h.price)
 
             schedule.append({
                 "hour": h.hour.isoformat().replace("+00:00", "Z"),
-                "charging_power": round(p, 2)
+                "charging_power": round(energy, 2)
             })
             
             total_kwh += energy
@@ -93,7 +87,6 @@ class PlannerService:
 
         # Print cost summary to console
         avg_cost = round(total_cost / total_kwh, 4) if total_kwh > 0 else 0.0
-        # print(f"Total: {round(total_kwh, 2)} kWh | Cost: {round(total_cost, 2)} EUR | Avg: {avg_cost} EUR/kWh")
 
         logger.info(
             "Planning complete | total=%.2f kWh | cost=%.2f EUR | avg=%.4f EUR/kWh",

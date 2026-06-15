@@ -26,10 +26,7 @@ class DataValidator:
             - needs_scheduling=False → payload is a final zero/empty schedule
                                        dict; return it as-is
         """
-        try:
-            request = ScheduleRequest(**raw_data)
-        except ValidationError:
-            raise
+        request = ScheduleRequest(**raw_data)
 
         vehicle = request.vehicle
         forecast = request.forecast
@@ -45,7 +42,7 @@ class DataValidator:
         # Final response 2: already at or above target
         if vehicle.current_soc_pct >= vehicle.target_soc_pct:
             zero_schedule = [
-                {"hour": f.hour.isoformat(), "chargingPower": 0.0}
+                {"hour": f.hour.isoformat(), "charging_power": 0.0}
                 for f in forecast
             ]
             return (
