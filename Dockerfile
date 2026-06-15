@@ -1,17 +1,12 @@
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_NO_INTERACTION=1
-
-RUN pip install --no-cache-dir poetry
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock README.md ./
-RUN poetry install --no-root --only main \
- && pip install --no-cache-dir "streamlit>=1.30" "pandas>=2.0"
+# Install dependencies using pip directly to avoid Poetry architecture issues
+RUN pip install --no-cache-dir "pydantic>=2.13.4" "streamlit>=1.30" "pandas>=2.0"
 
 COPY app ./app
 COPY data ./data
