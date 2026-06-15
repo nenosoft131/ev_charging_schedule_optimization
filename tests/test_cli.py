@@ -112,11 +112,11 @@ class WriteResultTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             path = Path(tmp) / "nested" / "out.json"
 
-            write_result([{"hour": "x", "chargingPower": 1.0}], path)
+            write_result([{"hour": "x", "charging_power": 1.0}], path)
 
             self.assertTrue(path.exists())
             data = json.loads(path.read_text())
-            self.assertEqual(data[0]["chargingPower"], 1.0)
+            self.assertEqual(data[0]["charging_power"], 1.0)
 
     def test_writes_to_stdout_when_path_is_none(self):
         buf = io.StringIO()

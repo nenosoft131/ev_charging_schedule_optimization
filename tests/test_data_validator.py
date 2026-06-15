@@ -37,7 +37,7 @@ class DataValidatorTests(unittest.TestCase):
         needs_scheduling, result, _ = DataValidator.validate_data(payload)
 
         self.assertFalse(needs_scheduling)
-        self.assertTrue(all(row["chargingPower"] == 0.0 for row in result["schedule"]))
+        self.assertTrue(all(row["charging_power"] == 0.0 for row in result["schedule"]))
 
     def test_bad_input_raises(self):
         payload = {**VALID_INPUT, "vehicle": {**VALID_INPUT["vehicle"], "capacity": -1}}

@@ -56,25 +56,6 @@ class PlannerServiceTests(unittest.TestCase):
         powers = [row["charging_power"] for row in schedule]
         self.assertEqual(powers.index(max(powers)), 1)
 
-    # def test_total_charge_never_exceeds_battery_headroom(self):
-    #     # Vehicle: (100 - 10)% of 100 kWh = 90 kWh required.
-    #     #          buffered demand: 90 / 0.95 ≈ 94.7 kWh (wants more).
-    #     # Battery has only 90 kWh of physical room (already 10% full).
-    #     # → schedule must cap total allocation at 90 kWh, not 94.7.
-    #     schedule = plan(
-    #         forecast([(0.30, 0.0, 1.0)] * 10),
-    #         current=10,
-    #         target=100,
-    #         capacity=100,
-    #     )
-
-    #     total = sum(row["charging_power"] for row in schedule)
-    #     self.assertLessEqual(
-    #         total,
-    #         90.0 + 1e-6,
-    #         f"Scheduled {total:.2f} kWh; battery only has 90 kWh of room.",
-    #     )
-
     def test_solar_is_used_before_priced_grid(self):
         # 4 kW free solar in a single hour should fill before grid kicks in.
         schedule = plan(forecast([(0.40, 4.0, 1.0)]), target=48)
